@@ -11,27 +11,26 @@ const PER_PAGE = 9;
 
 const EventList = () => {
   const { data, error } = useData();
+  console.log("Data : ", data);
+  console.log("error : ", error);
   const [type, setType] = useState();
   const [currentPage, setCurrentPage] = useState(1);
-  const filteredEvents = (
-    (!type
-      ? data?.events
-      : data?.events) || []
-  ).filter((event, index) => {
-    if (
-      (currentPage - 1) * PER_PAGE <= index &&
-      PER_PAGE * currentPage > index
-    ) {
-      return true;
-    }
-    return false;
-  });
+  const filteredEvents =
+    data?.events
+      .filter((event) => !type || event.type === type)
+      .slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE) || [];
+
+  console.log("le filtre : ", filteredEvents);
+
   const changeType = (evtType) => {
+    console.log("nouveau type ", evtType);
     setCurrentPage(1);
     setType(evtType);
   };
+  console.log("change type ", changeType);
   const pageNumber = Math.floor((filteredEvents?.length || 0) / PER_PAGE) + 1;
   const typeList = new Set(data?.events.map((event) => event.type));
+  console.log("typeliste :", typeList);
   return (
     <>
       {error && <div>An error occured</div>}
@@ -42,7 +41,9 @@ const EventList = () => {
           <h3 className="SelectTitle">Catégories</h3>
           <Select
             selection={Array.from(typeList)}
-            onChange={(value) => (value ? changeType(value) : changeType(null))}
+            onChange={(value) =>
+              value ? changeType(value) : changeType(value)
+            }
           />
           <div id="events" className="ListContainer">
             {filteredEvents.map((event) => (
